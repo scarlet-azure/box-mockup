@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parametric 3D Packaging Configurator | Three.js</title>
+    <title>Parametric 3D Packaging & Dieline Studio</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Import Map Three.js ES Modules (Tanpa Build Tools / Webpack) -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Import Map Three.js ES Modules -->
     <script type="importmap">
     {
         "imports": {
@@ -16,45 +17,46 @@
         }
     }
     </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-    </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
 
     <!-- ================= SIDEBAR KONFIGURATOR ================= -->
-    <aside class="w-full lg:w-96 bg-[#0d1321] border-b lg:border-b-0 lg:border-r border-slate-800 p-6 flex flex-col justify-between gap-6 shrink-0 z-10 overflow-y-auto lg:h-screen">
-        <div class="space-y-6">
+    <aside class="w-full lg:w-96 bg-[#0d1321] border-b lg:border-b-0 lg:border-r border-slate-800 p-6 flex flex-col justify-between gap-6 shrink-0 z-10 overflow-y-auto lg:h-screen custom-scrollbar">
+        <div class="space-y-5">
             <div>
                 <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-mono text-[10px] uppercase">
-                    Three.js Parametric Engine
+                    Three.js • CAD Dieline Engine
                 </div>
                 <h1 class="text-lg font-bold text-white mt-2">3D Box Packaging Studio</h1>
-                <p class="text-xs text-slate-400 mt-1">Atur dimensi kemasan, pilih konstruksi box, dan tempelkan artwork cetak secara real-time.</p>
+                <p class="text-xs text-slate-400 mt-1">Konfigurator dimensi parametrik, preview 3D real-time, dan pola dieline siap cetak.</p>
             </div>
 
-            <!-- 1. PILIH MODEL KEMASAN -->
+            <!-- 1. PILIH MODEL KEMASAN (DROPDOWN) -->
             <div>
-                <label class="block text-[11px] font-mono uppercase text-slate-400 font-bold mb-2">1. Model Konstruksi Box</label>
-                <div class="grid grid-cols-3 gap-2 text-[11px] font-mono">
-                    <button onclick="setBoxModel('tuck')" id="btn-model-tuck" class="model-btn py-2.5 px-2 bg-indigo-600 text-white font-bold rounded-xl border border-indigo-500 cursor-pointer transition-all">
-                        Folding Box
-                    </button>
-                    <button onclick="setBoxModel('mailer')" id="btn-model-mailer" class="model-btn py-2.5 px-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 cursor-pointer transition-all">
-                        Mailer Box
-                    </button>
-                    <button onclick="setBoxModel('pillow')" id="btn-model-pillow" class="model-btn py-2.5 px-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 cursor-pointer transition-all">
-                        Pillow Box
-                    </button>
+                <label for="select-model" class="block text-[11px] font-mono uppercase text-slate-400 font-bold mb-2">1. Model Konstruksi Box</label>
+                <div class="relative">
+                    <select id="select-model" class="w-full appearance-none bg-[#0b0f19] border border-slate-700 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 pr-9 text-xs text-white font-medium outline-none cursor-pointer transition-colors">
+                        <option value="tuck">Standard Folding Box (Reverse Tuck-End)</option>
+                        <option value="mailer">E-Commerce Mailer Box (FEFCO 0427)</option>
+                        <option value="sleeve">Drawer / Slider Sleeve Box (Kotak Geser)</option>
+                        <option value="gable">Gable Carrier Box (Kotak Tenteng)</option>
+                        <option value="pillow">Curved Pillow Box (Kemasan Bantal)</option>
+                        <option value="display">Counter Display Box (POP Open Top)</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-400 text-xs">
+                        ▾
+                    </div>
                 </div>
+                <p id="model-desc" class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                    Kemasan ritel lipat standar dengan tutup atas-bawah berlawanan arah.
+                </p>
             </div>
 
             <!-- 2. INPUT DIMENSI PARAMETRIK (CM) -->
             <div>
                 <div class="flex justify-between items-center mb-2">
                     <label class="text-[11px] font-mono uppercase text-slate-400 font-bold">2. Dimensi Ukuran (cm)</label>
-                    <span id="dim-summary" class="text-[10px] font-mono text-emerald-400">12 × 8 × 18 cm</span>
+                    <span id="dim-summary" class="text-[10px] font-mono text-emerald-400 font-bold">12 × 8 × 18 cm</span>
                 </div>
                 <div class="grid grid-cols-3 gap-2.5 font-mono text-xs">
                     <div>
@@ -79,13 +81,13 @@
             <div>
                 <label class="block text-[11px] font-mono uppercase text-slate-400 font-bold mb-2">3. Material & Laminasi</label>
                 <div class="grid grid-cols-3 gap-2 text-[11px] font-mono mb-3">
-                    <button onclick="setFinish('glossy', this)" class="finish-btn py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl border border-slate-700 cursor-pointer transition-colors">
+                    <button type="button" data-finish="glossy" class="finish-btn py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl border border-slate-700 cursor-pointer transition-colors">
                         Glossy
                     </button>
-                    <button onclick="setFinish('matte', this)" class="finish-btn py-2 bg-indigo-600 text-white font-bold rounded-xl border border-indigo-500 cursor-pointer transition-colors">
+                    <button type="button" data-finish="matte" class="finish-btn active py-2 bg-indigo-600 text-white font-bold rounded-xl border border-indigo-500 cursor-pointer transition-colors">
                         Doff / Matte
                     </button>
-                    <button onclick="setFinish('kraft', this)" class="finish-btn py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl border border-slate-700 cursor-pointer transition-colors">
+                    <button type="button" data-finish="kraft" class="finish-btn py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl border border-slate-700 cursor-pointer transition-colors">
                         Kraft Cokelat
                     </button>
                 </div>
@@ -95,406 +97,71 @@
                 </div>
             </div>
 
-            <!-- 4. ARTWORK & DIE-CUT TEMPLATE -->
-            <div class="space-y-2.5">
-                <label class="block text-[11px] font-mono uppercase text-slate-400 font-bold">4. Desain Cetak & Die-Cut</label>
-                
-                <label class="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl bg-slate-900/40 cursor-pointer transition-all text-center">
-                    <span class="text-xs text-slate-200 font-semibold">Unggah Desain Artwork (.PNG/.JPG)</span>
-                    <span id="file-label" class="text-[10px] text-slate-500 mt-1 font-mono">Menempel otomatis ke sisi depan & belakang</span>
+            <!-- 4. UPLOAD ARTWORK -->
+            <div>
+                <label class="block text-[11px] font-mono uppercase text-slate-400 font-bold mb-2">4. Desain Artwork Cetak</label>
+                <label class="flex flex-col items-center justify-center p-3.5 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl bg-slate-900/40 cursor-pointer transition-all text-center">
+                    <span class="text-xs text-slate-200 font-semibold">Unggah Artwork (.PNG / .JPG)</span>
+                    <span id="file-label" class="text-[10px] text-slate-500 mt-1 font-mono">Otomatis menyesuaikan proporsi box</span>
                     <input type="file" id="artwork-input" accept="image/*" class="hidden">
                 </label>
-
-                <button onclick="downloadDieCutTemplate()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 rounded-xl text-[11px] font-mono font-bold cursor-pointer transition-colors">
-                    Unduh Pola Die-Cut Dinamis (.PNG)
-                </button>
             </div>
         </div>
 
-        <!-- TOMBOL AKSI BAWAH -->
+        <!-- TOMBOL EKSPOR -->
         <div class="space-y-2 pt-3 border-t border-slate-800">
-            <div class="flex gap-2">
-                <button onclick="toggleAutoRotate()" id="btn-rotate" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono rounded-xl border border-slate-700 cursor-pointer">
-                    Pause Rotasi
-                </button>
-                <button onclick="resetCamera()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-mono rounded-xl border border-slate-700 cursor-pointer">
-                    Reset Sudut
-                </button>
-            </div>
-            <button onclick="exportRenderPNG()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-mono font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-colors shadow-lg">
-                Export Mockup Render (.PNG)
+            <button type="button" id="btn-download-dieline" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 rounded-xl text-[11px] font-mono font-bold cursor-pointer transition-colors">
+                Unduh Pola Dieline (.PNG)
+            </button>
+            <button type="button" id="btn-export-render" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-mono font-bold uppercase tracking-wider rounded-xl cursor-pointer transition-colors shadow-lg">
+                Export Mockup 3D (.PNG)
             </button>
         </div>
     </aside>
 
-    <!-- ================= CANVAS 3D THREE.JS ================= -->
-    <main class="flex-1 relative min-h-[500px] lg:h-screen bg-[#0b0f19]" id="canvas-container">
-        <!-- Info Overlay Kanan Atas -->
-        <div class="absolute top-4 right-4 z-10 bg-slate-900/80 backdrop-blur-md border border-slate-800 px-3.5 py-2 rounded-xl text-[10px] font-mono text-slate-400 pointer-events-none">
-            Drag: Putar 360° • Scroll: Zoom • Klik Kanan: Geser
+    <!-- ================= VIEWPORT UTAMA (3D JADI & 2D DIELINE) ================= -->
+    <main class="flex-1 relative min-h-[520px] lg:h-screen bg-[#0b0f19] flex flex-col">
+        
+        <!-- TOP TOOLBAR: SWITCHER MODE JADI VS MODE DIELINE -->
+        <div class="absolute top-4 left-4 right-4 z-20 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
+            <!-- Toggle Mode -->
+            <div class="pointer-events-auto inline-flex p-1 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-xl shadow-lg font-mono text-xs">
+                <button type="button" id="mode-btn-3d" class="px-4 py-1.5 rounded-lg bg-indigo-600 text-white font-bold cursor-pointer transition-all">
+                    Mode Jadi (3D)
+                </button>
+                <button type="button" id="mode-btn-dieline" class="px-4 py-1.5 rounded-lg text-slate-400 hover:text-white cursor-pointer transition-all">
+                    Mode Dieline (2D)
+                </button>
+            </div>
+
+            <!-- Kontrol Kamera (Hanya muncul di Mode 3D) -->
+            <div id="controls-3d-bar" class="pointer-events-auto flex items-center gap-2">
+                <button type="button" id="btn-rotate" class="px-3 py-1.5 bg-slate-900/85 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-[11px] font-mono text-slate-300 cursor-pointer transition-colors">
+                    Pause Rotasi
+                </button>
+                <button type="button" id="btn-reset-cam" class="px-3 py-1.5 bg-slate-900/85 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-[11px] font-mono text-slate-300 cursor-pointer transition-colors">
+                    Reset Sudut
+                </button>
+            </div>
         </div>
+
+        <!-- VIEW 1: CANVAS 3D THREE.JS (MODE JADI) -->
+        <div id="canvas-container" class="w-full h-full flex-1"></div>
+
+        <!-- VIEW 2: CANVAS 2D DIELINE BLUEPRINT (MODE DIELINE) -->
+        <div id="dieline-container" class="hidden w-full h-full flex-1 flex-col items-center justify-center p-6 pt-20 pb-12 bg-[#090d16] overflow-auto">
+            <div class="bg-white rounded-2xl p-4 shadow-2xl border border-slate-700 max-w-full max-h-full overflow-auto flex items-center justify-center">
+                <canvas id="dieline-canvas" class="max-w-full h-auto block"></canvas>
+            </div>
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-6 text-[11px] font-mono text-slate-400">
+                <span class="flex items-center gap-2"><span class="w-4 h-0.5 bg-rose-500 inline-block"></span> Garis Potong (Die-Cut)</span>
+                <span class="flex items-center gap-2"><span class="w-4 h-0.5 border-t-2 border-dashed border-emerald-500 inline-block"></span> Garis Lipat (Creasing)</span>
+                <span class="flex items-center gap-2"><span class="w-3 h-3 bg-indigo-500/20 border border-indigo-400 inline-block"></span> Area Cetak Utama</span>
+            </div>
+        </div>
+
     </main>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-        // 1. INISIALISASI SCENE, CAMERA & RENDERER
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0f19);
-
-        const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(22, 18, 28);
-
-        // preserveDrawingBuffer: true wajib agar tombol Export PNG tidak menghasilkan gambar hitam
-        const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.1;
-        container.appendChild(renderer.domElement);
-
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 1.5;
-
-        // 2. PENCAHAYAAN STUDIO (THREE-POINT LIGHTING)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-        scene.add(ambientLight);
-
-        const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
-        keyLight.position.set(18, 30, 22);
-        keyLight.castShadow = true;
-        keyLight.shadow.mapSize.width = 2048;
-        keyLight.shadow.mapSize.height = 2048;
-        keyLight.shadow.bias = -0.0005;
-        scene.add(keyLight);
-
-        const fillLight = new THREE.DirectionalLight(0xc7d2fe, 0.55);
-        fillLight.position.set(-20, 12, -15);
-        scene.add(fillLight);
-
-        // Lantai Bayangan Halus & Grid Studio
-        const gridHelper = new THREE.GridHelper(60, 30, 0x1e293b, 0x111827);
-        scene.add(gridHelper);
-
-        const shadowPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(80, 80),
-            new THREE.ShadowMaterial({ opacity: 0.35 })
-        );
-        shadowPlane.rotation.x = -Math.PI / 2;
-        shadowPlane.receiveShadow = true;
-        scene.add(shadowPlane);
-
-        // 3. STATE APLIKASI & MATERIAL
-        let currentModelType = 'tuck';
-        let boxGroup = new THREE.Group();
-        scene.add(boxGroup);
-
-        let uploadedTexture = null;
-        let currentRoughness = 0.45;
-        let currentMetalness = 0.05;
-
-        // Buat tekstur default bawaan agar langsung terlihat keren saat dibuka
-        function createDefaultSampleTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1024;
-            canvas.height = 1024;
-            const ctx = canvas.getContext('2d');
-
-            // Background
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 0, 1024, 1024);
-
-            // Aksen Geometri Modern
-            ctx.fillStyle = '#4f46e5';
-            ctx.fillRect(0, 0, 1024, 240);
-            ctx.fillStyle = '#10b981';
-            ctx.fillRect(0, 940, 1024, 84);
-
-            // Tipografi Label Kemasan
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 54px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('SURYA ABADI PACKAGING', 512, 135);
-
-            ctx.fillStyle = '#0f172a';
-            ctx.font = 'bold 76px sans-serif';
-            ctx.fillText('PREMIUM EDITION', 512, 480);
-
-            ctx.fillStyle = '#64748b';
-            ctx.font = '32px monospace';
-            ctx.fillText('CUSTOM DIE-CUT & UV FINISH', 512, 550);
-
-            // Bingkai garis potong tipis
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 6;
-            ctx.strokeRect(40, 280, 944, 600);
-
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.colorSpace = THREE.SRGBColorSpace;
-            return tex;
-        }
-
-        uploadedTexture = createDefaultSampleTexture();
-
-        // 4. PEMBANGUN GEOMETRI BOX PARAMETRIK
-        function rebuildBox() {
-            // Bersihkan mesh sebelumnya
-            while (boxGroup.children.length > 0) {
-                const child = boxGroup.children[0];
-                if (child.geometry) child.geometry.dispose();
-                boxGroup.remove(child);
-            }
-
-            const P = parseFloat(document.getElementById('input-length').value) || 12;
-            const L = parseFloat(document.getElementById('input-width').value) || 8;
-            const T = parseFloat(document.getElementById('input-height').value) || 18;
-            const baseHex = document.getElementById('base-color').value;
-
-            document.getElementById('dim-summary').innerText = `${P} × ${L} × ${T} cm`;
-
-            // Skala tampilan agar tetap proporsional di viewport
-            const scale = 0.7;
-            const w = P * scale;
-            const d = L * scale;
-            const h = T * scale;
-
-            // Material sisi polos (samping, atas, bawah)
-            const plainMat = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(baseHex),
-                roughness: currentRoughness,
-                metalness: currentMetalness
-            });
-
-            // Material sisi ber-artwork (depan & belakang)
-            const artMat = new THREE.MeshStandardMaterial({
-                color: new THREE.Color(baseHex),
-                map: uploadedTexture,
-                roughness: currentRoughness,
-                metalness: currentMetalness
-            });
-
-            if (currentModelType === 'tuck') {
-                // MODEL 1: STANDARD FOLDING BOX (TUCK-END)
-                // Order faces BoxGeometry: +X (kanan), -X (kiri), +Y (atas), -Y (bawah), +Z (depan), -Z (belakang)
-                const materials = [plainMat, plainMat, plainMat, plainMat, artMat, artMat];
-                const geo = new THREE.BoxGeometry(w, h, d);
-                const mesh = new THREE.Mesh(geo, materials);
-                mesh.position.y = h / 2;
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                boxGroup.add(mesh);
-
-                // Garis lipatan tutup atas (Crease Line Detail)
-                const creaseGeo = new THREE.BoxGeometry(w * 1.004, 0.08, d * 1.004);
-                const creaseMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.8 });
-                const topCrease = new THREE.Mesh(creaseGeo, creaseMat);
-                topCrease.position.y = h - 0.15;
-                boxGroup.add(topCrease);
-
-            } else if (currentModelType === 'mailer') {
-                // MODEL 2: E-COMMERCE MAILER BOX (Lebih pipih & melebar dengan lid/tutup depan)
-                const mailerH = Math.min(h, Math.max(w, d) * 0.55); // Proporsi khas mailer box
-                const materials = [plainMat, plainMat, artMat, plainMat, plainMat, plainMat];
-                const geo = new THREE.BoxGeometry(w, mailerH, d);
-                const mesh = new THREE.Mesh(geo, materials);
-                mesh.position.y = mailerH / 2;
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                boxGroup.add(mesh);
-
-                // Lid lipatan depan khas Mailer Box
-                const flapGeo = new THREE.BoxGeometry(w * 0.98, mailerH * 0.88, 0.12);
-                const flapMesh = new THREE.Mesh(flapGeo, plainMat);
-                flapMesh.position.set(0, mailerH / 2, d / 2 + 0.05);
-                flapMesh.castShadow = true;
-                boxGroup.add(flapMesh);
-
-                // Aksen kuncian tuck-in di samping
-                const earGeo = new THREE.BoxGeometry(0.12, mailerH * 0.7, d * 0.35);
-                const leftEar = new THREE.Mesh(earGeo, plainMat);
-                leftEar.position.set(-w / 2 - 0.04, mailerH / 2, d * 0.25);
-                const rightEar = new THREE.Mesh(earGeo, plainMat);
-                rightEar.position.set(w / 2 + 0.04, mailerH / 2, d * 0.25);
-                boxGroup.add(leftEar, rightEar);
-
-            } else if (currentModelType === 'pillow') {
-                // MODEL 3: PILLOW BOX (Kemasan melengkung)
-                const geo = new THREE.CylinderGeometry(d * 0.55, d * 0.55, h, 32, 1);
-                geo.scale(w / (d * 1.1), 1, 0.55); // Pipihkan menjadi bentuk bantal
-                const mesh = new THREE.Mesh(geo, artMat);
-                mesh.position.y = h / 2;
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                boxGroup.add(mesh);
-            }
-        }
-
-        // 5. EVENT LISTENERS UI
-        ['input-length', 'input-width', 'input-height', 'base-color'].forEach(id => {
-            document.getElementById(id).addEventListener('input', rebuildBox);
-        });
-
-        // Upload Gambar Artwork Pengguna
-        document.getElementById('artwork-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            document.getElementById('file-label').innerText = `Terpasang: ${file.name}`;
-            document.getElementById('file-label').classList.add('text-emerald-400');
-
-            const url = URL.createObjectURL(file);
-            new THREE.TextureLoader().load(url, (tex) => {
-                tex.colorSpace = THREE.SRGBColorSpace;
-                uploadedTexture = tex;
-                rebuildBox();
-            });
-        });
-
-        // Expose Fungsi ke Global Window untuk Tombol HTML
-        window.setBoxModel = (type) => {
-            currentModelType = type;
-            document.querySelectorAll('.model-btn').forEach(btn => {
-                btn.className = 'model-btn py-2.5 px-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 cursor-pointer transition-all';
-            });
-            document.getElementById(`btn-model-${type}`).className = 'model-btn py-2.5 px-2 bg-indigo-600 text-white font-bold rounded-xl border border-indigo-500 cursor-pointer transition-all';
-            rebuildBox();
-        };
-
-        window.setFinish = (mode, btnEl) => {
-            document.querySelectorAll('.finish-btn').forEach(b => {
-                b.className = 'finish-btn py-2 bg-slate-800 hover:bg-indigo-600 rounded-xl border border-slate-700 cursor-pointer transition-colors';
-            });
-            btnEl.className = 'finish-btn py-2 bg-indigo-600 text-white font-bold rounded-xl border border-indigo-500 cursor-pointer transition-colors';
-
-            if (mode === 'glossy') {
-                currentRoughness = 0.1;
-                currentMetalness = 0.08;
-            } else if (mode === 'matte') {
-                currentRoughness = 0.45;
-                currentMetalness = 0.02;
-            } else if (mode === 'kraft') {
-                currentRoughness = 0.88;
-                currentMetalness = 0.0;
-                document.getElementById('base-color').value = '#c29b6e';
-            }
-            rebuildBox();
-        };
-
-        window.toggleAutoRotate = () => {
-            controls.autoRotate = !controls.autoRotate;
-            document.getElementById('btn-rotate').innerText = controls.autoRotate ? 'Pause Rotasi' : 'Auto Rotasi';
-        };
-
-        window.resetCamera = () => {
-            camera.position.set(22, 18, 28);
-            controls.target.set(0, 5, 0);
-            controls.update();
-        };
-
-        window.exportRenderPNG = () => {
-            renderer.render(scene, camera);
-            const dataUrl = renderer.domElement.toDataURL('image/png');
-            const a = document.createElement('a');
-            a.href = dataUrl;
-            a.download = `3d-packaging-${currentModelType}-${Date.now()}.png`;
-            a.click();
-        };
-
-        // GENERATOR POLA DIE-CUT 2D DINAMIS SESUAI INPUT P x L x T
-        window.downloadDieCutTemplate = () => {
-            const P = parseFloat(document.getElementById('input-length').value) || 12;
-            const L = parseFloat(document.getElementById('input-width').value) || 8;
-            const T = parseFloat(document.getElementById('input-height').value) || 18;
-
-            const scalePx = 30; // 1 cm = 30 px
-            const pPx = P * scalePx;
-            const lPx = L * scalePx;
-            const tPx = T * scalePx;
-            const flapPx = lPx * 0.65;
-            const pad = 60;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = (pPx * 2) + (lPx * 2) + (pad * 2) + 40;
-            canvas.height = tPx + (lPx * 2) + (flapPx * 2) + (pad * 2);
-            const ctx = canvas.getContext('2d');
-
-            // Latar Putih Kertas
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const startX = pad + 40;
-            const bodyY = pad + flapPx + lPx;
-
-            // Garis Potong (Merah Solid) & Garis Lipat / Crease (Hijau Putus-putus)
-            ctx.lineWidth = 2;
-
-            // 4 Panel Badan Utama (L - P - L - P)
-            const panels = [
-                { label: `Samping (${L}cm)`, w: lPx },
-                { label: `Depan (${P}x${T}cm)`, w: pPx },
-                { label: `Samping (${L}cm)`, w: lPx },
-                { label: `Belakang (${P}x${T}cm)`, w: pPx }
-            ];
-
-            let curX = startX;
-            panels.forEach((panel) => {
-                ctx.strokeStyle = '#10b981';
-                ctx.setLineDash([8, 6]);
-                ctx.strokeRect(curX, bodyY, panel.w, tPx);
-
-                ctx.fillStyle = '#475569';
-                ctx.font = 'bold 14px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(panel.label, curX + panel.w / 2, bodyY + tPx / 2);
-                curX += panel.w;
-            });
-
-            // Lid Tutup Atas & Bawah pada Panel Depan
-            const frontX = startX + lPx;
-            ctx.strokeStyle = '#ef4444';
-            ctx.setLineDash([]);
-            ctx.strokeRect(frontX, bodyY - lPx, pPx, lPx); // Tutup Atas
-            ctx.strokeRect(frontX, bodyY - lPx - flapPx, pPx, flapPx); // Lid Masuk Atas
-            ctx.strokeRect(frontX, bodyY + tPx, pPx, lPx); // Tutup Bawah
-            ctx.strokeRect(frontX, bodyY + tPx + lPx, pPx, flapPx); // Lid Masuk Bawah
-
-            // Glue Tab Kiri
-            ctx.strokeRect(startX - 35, bodyY + 15, 35, tPx - 30);
-
-            // Header Info Ukuran
-            ctx.fillStyle = '#0f172a';
-            ctx.font = 'bold 18px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(`DIE-CUT TEMPLATE: ${P} x ${L} x ${T} cm (${currentModelType.toUpperCase()}) | Merah: Cut, Hijau: Crease`, pad, 35);
-
-            const link = document.createElement('a');
-            link.download = `diecut-template-${P}x${L}x${T}cm.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        };
-
-        // 6. RESPONSIVE RESIZE & RENDER LOOP
-        window.addEventListener('resize', () => {
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-
-        rebuildBox();
-
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
